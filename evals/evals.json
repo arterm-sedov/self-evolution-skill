@@ -24,6 +24,12 @@
       "prompt": "We documented three gotchas on the feature branch and committed the skill updates. The team also maintains platform_v5 and platform_v6. What now?",
       "expected_output": "A short handoff note that identifies the documentation commit as portable, distinguishes it from generated/version-specific artifacts, and asks whether to cherry-pick or leave it, without performing any git operation.",
       "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Our discovery log has 180 bullets, including one from June saying the import takes 5–10 minutes and one from July saying 12–15 minutes, and a few entries already marked [superseded by ...]. Refresh it: summarize what should be merged, supersede the stale timeout, and purge what is safe. Show me the plan first.",
+      "expected_output": "A maintenance proposal table classifying entries as Summarize, Supersede, Purge, Migrate, Keep, or Fix, with evidence for the current timeout, the exact supersession wording and marker, an explicit request for approval, and no file changes before approval.",
+      "files": []
     }
   ]
 }

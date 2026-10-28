@@ -1,6 +1,6 @@
 ---
 name: self-evolution
-description: Capture what a session learned so the next session starts smarter. Use after any non-trivial task — debugging, integration, migration, refactor, tooling fix — to route discoveries, gotchas, and decisions into durable project memory; also use before starting similar work to review what earlier sessions already learned. Trigger when the user says document what we learned, add to the discovery log, write this down for next time, update the skill or rules, or asks why a previous decision was made.
+description: Capture what a session learned so the next session starts smarter, and keep that knowledge current. Use after any non-trivial task — debugging, integration, migration, refactor, tooling fix — to route discoveries, gotchas, and decisions into durable project memory; also use before starting similar work to review what earlier sessions already learned, and periodically to summarize, refresh, supersede, and purge the discovery log with operator approval. Trigger when the user says document what we learned, add to the discovery log, write this down for next time, update the skill or rules, clean up stale notes, or asks why a previous decision was made.
 license: MIT
 metadata:
   compatibility: Any Agent Skills host that can read and write files. The optional log-health script needs Python 3.10+ and uses only the standard library.
@@ -19,7 +19,7 @@ Treat session knowledge as a routing problem. Every finding gets exactly one dur
 | Before work | Read the newest log entries that touch the area |
 | During work | Note the symptom, cause, and fix while they are fresh |
 | After work | Classify each finding and route it to one home |
-| Periodically | Delta-analyze the log, propose pruning, apply only after approval |
+| Periodically | Summarize, refresh, supersede, and prune the log; apply only after approval |
 
 ### Before starting
 
@@ -79,12 +79,25 @@ The log is a staging area. Entries that proved useful across sessions belong in 
     - **Migrate** — still valuable, wrong home; name the destination and the one-line rule to add there.
     - **Prune** — absorbed or redundant; safe to delete once the durable home exists.
     - **Keep** — operational detail, not documented elsewhere, or still the best entry point for agents.
+    - **Supersede** — a newer fact overrides it; add the new entry, mark the old one, then remove it after approval.
     - **Fix** — stale or wrong; propose corrected wording instead of deleting.
 
 4. Present a short table: entry (date + gist) → status → proposed action → destination.
 5. Ask explicitly whether to apply the proposal. Apply only what was approved.
 
 Why approval: the operator owns the conventions, knows which branches are shared, and may deliberately keep a reminder in the log even when a rule also covers it. Silent deletion destroys trust in the log faster than a stale entry does.
+
+### Refresh before it rots
+
+Pruning alone leaves stale facts in place. Run a refresh pass monthly, before a release, after a large refactor, and whenever the checker reports size or staleness:
+
+1. **Summarize** clusters of related bullets into one durable entry or skill rule. Keep the exact command, flag, error text, or ID; a summary that loses the actionable string is worse than the original.
+2. **Verify** every fact against the current code, configuration, or vendor documentation. A fact that no longer holds is Fix or Supersede, never Keep.
+3. **Supersede** when a new fact contradicts an old one. The new entry says `Supersedes YYYY-MM-DD: <old gist>`; after approval the old entry is marked `[superseded by YYYY-MM-DD]` and then removed. Never leave two unmarked contradictory facts.
+4. **Purge** absorbed, superseded, or redundant entries only after the operator approves the table.
+5. **Archive** before destructive purge when the log is not tracked in Git.
+
+If two entries conflict and the current truth is unknown, keep both, label the conflict `[conflict — verify]`, and ask which fact is current. Guessing is how a log starts lying.
 
 ## Detect bloat and propose a skill
 
@@ -99,10 +112,10 @@ Run the bundled checker before and after a cleanup pass:
 ```bash
 python scripts/log_health.py skills/self-evolution/references/discovery_log.md
 python scripts/log_health.py <log-path> --json
-python scripts/log_health.py <log-path> --max-age-days 90
+python scripts/log_health.py <log-path> --max-age-days 90 --max-entries 100
 ```
 
-It reports structural errors (bad dates, duplicate day headings, newest-first violations), stale blocks, near-duplicate bullets, overlong entries, absolute paths, and credential-like strings. Use `--json` when another tool consumes the result.
+It reports structural errors (bad dates, duplicate day headings, newest-first violations), stale blocks, size-budget overruns, near-duplicate bullets, overlong entries, absolute paths, credential-like strings, and entries still marked `[superseded by …]` that are waiting for an approved purge. Use `--json` when another tool consumes the result.
 
 ## Handoff and sync
 

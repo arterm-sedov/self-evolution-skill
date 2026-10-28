@@ -26,7 +26,7 @@ AI agents forget everything between sessions. The same debugging cycle, environm
 | Before work | Read the newest log entries for the domain you are about to touch |
 | During work | Note symptom, cause, and fix while they are fresh |
 | After work | Classify each finding and route it to exactly one home |
-| Periodically | Delta-analyze the log, propose pruning, apply only after approval |
+| Periodically | Summarize, refresh, supersede, and prune the log; apply only after approval |
 
 ## Routing
 
@@ -50,7 +50,7 @@ python skills/self-evolution/scripts/log_health.py <log-path> --json
 python skills/self-evolution/scripts/log_health.py <log-path> --max-age-days 90
 ```
 
-The checker reports structural errors (bad dates, duplicate day headings, newest-first violations), stale blocks, near-duplicate bullets, overlong entries, absolute paths, and credential-like strings. It never edits the log.
+The checker reports structural errors (bad dates, duplicate day headings, newest-first violations), stale blocks, size-budget overruns, near-duplicate bullets, overlong entries, absolute paths, credential-like strings, and entries still marked `[superseded by …]` that await an approved purge. It never edits the log.
 
 Run the tests with the standard library only:
 

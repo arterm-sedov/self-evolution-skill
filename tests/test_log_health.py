@@ -78,6 +78,23 @@ class ContentTests(unittest.TestCase):
 
         self.assertEqual(check_content(entries), [])
 
+    def test_flags_superseded_entries(self):
+        text = "## 2026-06-20\n\n- Old fact. [superseded by 2026-07-02]\n"
+        entries, _, _ = parse_log(text)
+        from log_health import check_content
+
+        self.assertIn("superseded-entry", codes(check_content(entries)))
+
+
+class SizeTests(unittest.TestCase):
+    def test_size_budget_uses_entry_count(self):
+        text = "## 2026-06-20\n\n- one\n- two\n- three\n"
+        entries, _, _ = parse_log(text)
+        from log_health import check_size
+
+        self.assertEqual(len(check_size(entries, 3)), 0)
+        self.assertIn("size-budget", codes(check_size(entries, 2)))
+
 
 class DuplicateTests(unittest.TestCase):
     def test_near_duplicates_are_reported(self):
@@ -157,6 +174,15 @@ class ReportTests(unittest.TestCase):
             self.assertEqual(payload["entries"], 1)
             self.assertEqual(payload["errors"], 0)
             self.assertEqual(payload["warnings"], 0)
+
+    def test_size_warning_renders_without_line_number(self):
+        from log_health import Issue, Report, render_text
+
+        report = Report(path="log.md", dates=1, entries=200)
+        report.issues.append(Issue("warning", "size-budget", "too many entries"))
+        rendered = render_text(report)
+        self.assertIn("too many entries", rendered)
+        self.assertNotIn("line None", rendered)
 
 
 if __name__ == "__main__":

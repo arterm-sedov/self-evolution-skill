@@ -38,6 +38,7 @@ SECRET = re.compile(
 
 MAX_ENTRY_CHARS = 500
 WORD = re.compile(r"[a-z0-9]{4,}")
+SUPERSEDED = re.compile(r"\[superseded by\s+(\d{4}-\d{2}-\d{2})\]", re.IGNORECASE)
 
 
 @dataclass
@@ -160,7 +161,7 @@ def parse_log(text: str) -> tuple[list[Entry], list[str], list[Issue]]:
 
 
 def check_content(entries: list[Entry]) -> list[Issue]:
-    """Flag entries that are too long, machine-specific, or credential-like."""
+    """Flag entries that are too long, machine-specific, credential-like, or superseded."""
     issues: list[Issue] = []
     for entry in entries:
         if len(entry.text) > MAX_ENTRY_CHARS:
@@ -190,7 +191,29 @@ def check_content(entries: list[Entry]) -> list[Issue]:
                     entry.line,
                 )
             )
+        if SUPERSEDED.search(entry.text):
+            issues.append(
+                Issue(
+                    "warning",
+                    "superseded-entry",
+                    "entry is marked superseded; remove it after approval or archive it",
+                    entry.line,
+                )
+            )
     return issues
+
+
+def check_size(entries: list[Entry], max_entries: int) -> list[Issue]:
+    """Warn when the log exceeds its maintenance budget."""
+    if len(entries) <= max_entries:
+        return []
+    return [
+        Issue(
+            "warning",
+            "size-budget",
+            f"log has {len(entries)} entries; refresh and prune above {max_entries}",
+        )
+    ]
 
 
 def check_staleness(entries: list[Entry], max_age_days: int, today: date | None = None) -> list[Issue]:
@@ -243,6 +266,7 @@ def build_report(
     path: Path,
     *,
     max_age_days: int = 180,
+    max_entries: int = 150,
     duplicate_threshold: float = 0.65,
     today: date | None = None,
 ) -> Report:
@@ -251,6 +275,7 @@ def build_report(
     entries, dates, issues = parse_log(text)
     issues.extend(check_content(entries))
     issues.extend(check_staleness(entries, max_age_days, today))
+    issues.extend(check_size(entries, max_entries))
     issues.extend(check_duplicates(entries, duplicate_threshold))
     issues.sort(key=lambda issue: (issue.line or 0, issue.severity))
 
@@ -277,11 +302,17 @@ def render_text(report: Report) -> str:
     if errors:
         lines.append("")
         lines.append("Errors:")
-        lines.extend(f"  line {issue.line}: {issue.message}" for issue in errors)
+        lines.extend(
+            f"  line {issue.line}: {issue.message}" if issue.line else f"  {issue.message}"
+            for issue in errors
+        )
     if warnings:
         lines.append("")
         lines.append("Warnings:")
-        lines.extend(f"  line {issue.line}: {issue.message}" for issue in warnings)
+        lines.extend(
+            f"  line {issue.line}: {issue.message}" if issue.line else f"  {issue.message}"
+            for issue in warnings
+        )
     if not errors and not warnings:
         lines.append("")
         lines.append("No issues found.")
@@ -300,6 +331,12 @@ def main(argv: list[str] | None = None) -> int:
         help="warn about date blocks older than this (default: 180)",
     )
     parser.add_argument(
+        "--max-entries",
+        type=int,
+        default=150,
+        help="warn when the log exceeds this entry count (default: 150)",
+    )
+    parser.add_argument(
         "--duplicate-threshold",
         type=float,
         default=0.65,
@@ -314,6 +351,7 @@ def main(argv: list[str] | None = None) -> int:
     report = build_report(
         args.log,
         max_age_days=args.max_age_days,
+        max_entries=args.max_entries,
         duplicate_threshold=args.duplicate_threshold,
     )
 
