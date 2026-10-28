@@ -1,0 +1,29 @@
+{
+  "skill_name": "self-evolution",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We just burned two hours on the docs build: on Windows it kept dying with a colorama UnicodeEncodeError until we set PYTHONUTF8=1 and PYTHONIOENCODING=utf-8. We also learned that a second `## 2026-06-20` heading in our discovery log silently splits the day block. Before we wrap up, capture what we learned so the next session doesn't hit this again.",
+      "expected_output": "A routed set of findings: the encoding fix goes to the relevant build skill or its references, the duplicate-date rule goes to the log format or the rules file, and both are recorded as concise symptom-cause-fix bullets in the discovery log under a single date heading. No absolute paths or secrets.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Before we touch the PHPKB import pipeline again, look at what previous sessions wrote down. Then tell me if anything in the log should move into a skill or rule — don't change anything yet, just show me the proposal.",
+      "expected_output": "A review of the newest log entries relevant to the import pipeline, followed by a table classifying each candidate as Migrate, Prune, Keep, or Fix with a proposed destination. No files are modified because approval was not given.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Our AGENTS.md is now 400 lines and half of it is a step-by-step deploy recipe with the same commands repeated. The discovery log also has six bullets about that deploy flow. Can you clean this up?",
+      "expected_output": "Bloat analysis that proposes extracting the deploy recipe into a new or existing skill, naming the skill and its one-line description, listing which log entries and AGENTS.md sections would move, and asking for approval before creating or editing any file.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "We documented three gotchas on the feature branch and committed the skill updates. The team also maintains platform_v5 and platform_v6. What now?",
+      "expected_output": "A short handoff note that identifies the documentation commit as portable, distinguishes it from generated/version-specific artifacts, and asks whether to cherry-pick or leave it, without performing any git operation.",
+      "files": []
+    }
+  ]
+}

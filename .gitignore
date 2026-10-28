@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Scratch and local evaluation output
+.scratch/
+*-workspace/
