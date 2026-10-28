@@ -123,11 +123,12 @@ When the findings live on a feature branch, mention it and ask whether the rules
 
 ## Adapters
 
-Hosts keep project instructions in different files. See [references/adapters.md](references/adapters.md) for placement per ecosystem (Claude Code, OpenCode, Cursor, Copilot, plain repositories, monorepos) and for choosing a log location.
+Hosts keep project instructions in different files. See [references/adapters.md](references/adapters.md) for the rules file to update and the discovery-log location. Skill installation across hosts is out of scope for the workflow; see `docs/installation.md` in the repository when you need to place the skill itself.
 
 ## Reference files
 
-- [references/discovery-log-format.md](references/discovery-log-format.md) — exact log format, ordering, conflict handling, pruning rubric.
+- [references/adapters.md](references/adapters.md) — rules file and discovery-log placement.
+- [references/discovery-log-format.md](references/discovery-log-format.md) — exact log format, ordering, refresh, conflict handling, pruning rubric.
 - [references/examples.md](references/examples.md) — worked entries across domains with good and bad rewrites.
 - [references/discovery_log.md](references/discovery_log.md) — starter log to copy into a project.
 - `scripts/log_health.py` — validator and health report.

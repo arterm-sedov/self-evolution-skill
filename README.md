@@ -42,7 +42,7 @@ A finding is worth recording when it cost more than one attempt, contradicts the
 
 ## Usage
 
-Copy `skills/self-evolution/` into a supported Agent Skills directory. The host discovers the skill through `SKILL.md`; the helper script is optional.
+Copy `skills/self-evolution/` into a supported Agent Skills directory. The host discovers the skill through `SKILL.md`; the helper script is optional. For the host matrix, Claude Code bridge, and Windows junction vs POSIX symlink guidance, see [docs/installation.md](docs/installation.md).
 
 ```bash
 python skills/self-evolution/scripts/log_health.py skills/self-evolution/references/discovery_log.md
@@ -64,12 +64,15 @@ python -m unittest discover -s tests -v
 skills/self-evolution/
 ├── SKILL.md                          # workflow and routing rules
 ├── references/
-│   ├── adapters.md                   # host-specific placement
-│   ├── discovery-log-format.md       # format, ordering, pruning rubric
+│   ├── adapters.md                   # rules file and discovery-log placement
+│   ├── discovery-log-format.md       # format, ordering, refresh, pruning rubric
 │   ├── discovery_log.md              # starter log for a project
 │   └── examples.md                   # worked good/bad entries
 └── scripts/
     └── log_health.py                 # validator and health report
+docs/
+├── installation.md                   # host roots, links, copy mode
+└── research/                         # evidence behind the adapter guidance
 tests/
 └── test_log_health.py
 evals/
